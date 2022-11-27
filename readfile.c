@@ -48,6 +48,7 @@ void read_file() {
             pages[index] = num; // Stores the integer into the pages array.
             token = strtok(NULL, ","); // Advances the tokenizer to the next comma separated string.
             index++; // Increments the pages array index.
+            page_refs++;  // Increments the size of the global page references counter.
         }
     }
 

@@ -8,49 +8,55 @@
  * Fall 2022
  * Project 3: Measuring the Performance of Page Replacement Algorithms
  * ----------------------------------------------------------------------------------- */
-#define NFRAMES 10
+#define NFRAMES 5
 
-int queue[NFRAMES]; // We create a queue to simulate a 10-frame structure.
+int queue[NFRAMES]; // We create a queue to simulate a 10 page frame structure.
 int head = -1, tail = -1;
 int pageFault = 0;     // This counter will keep track of how many page faults occur.
-pg_index = 0;   // This variable will control the index of the pages array.
+int pg_index = 0;   // This variable will control the index of the page numbers array.
 
 /*
- * This function uses the page numbers in the pages array to load up the frames queue.
+ * This function uses the page numbers in the pages array to load up the queue that
+ * represents the page frames.
  *
  * Preconditions: The function to read the memory file has to be called before calling
- *                this function, because the array pages[] already has to be filled.
+ *                this function, because the array pages[] has to be filled.
  * Postconditions:
  */
 void run_fifo() {
     // Check that the entry in the pages array doesn't equal to zero.
+    printf("Page refs counter = %d\n", page_refs);
+    for (int i = 0; i < sizeof(pages); i++){
+        printf("%d ", pages[i]);
+    }
+    printf("\n");
     while (pages[pg_index] != 0) {
-        // Check if the page is not in the frame yet
+        // Check if the page is not in the page frame yet
         if (inQueue(pages[pg_index]) == false) {
             // This is a page fault so we increment the fault counter.
             pageFault++;
             // Enqueue the page and add it to a frame.
             enqueue(pages[pg_index]);
         }
-        else {
-            // Implement dirty bit here.
-            printf(" ");
-        }
+        // else {
+        //     // Implement dirty bit here.
+        //     printf(" ");
+        // }
         pg_index++;
     }
 
 }
 
 /*
- * This function adds the page into the frame. It checks of the queue is full
- * and if it isn't then inserts the page at the end of the queue.
- * Preconditions: The function must be called with the page that is to be added.
+ * This function adds the page into the pages frame (queue). It checks of the queue 
+ * is full and if it isn't then inserts the page at the end of the queue.
+ * Preconditions: The function must be called with the page number that is to be added.
  * Postcondtions: None.
  */
 void enqueue(int page_num) {
     // First we check if the frames are full.
     if (isFull()) {
-        dequeue(); // Call dequeue to first delete a frame.
+        dequeue(); // Call dequeue to first delete a page from the frame.
         enqueue(page_num);  // Add the page to the newly open frame.
     }
     else {
@@ -64,9 +70,9 @@ void enqueue(int page_num) {
 }
 
 /*
- * This function deletes a page from a frame. First it checks if the queue is
- * empty, and if it's empty it prints an error. Otherwise it advances the head
- * pointer to the next spot in the queue.
+ * This function deletes a page from the pages frame (queue). First it checks if 
+ * the queue is empty, and if it's empty it prints an error. Otherwise it advances 
+ * the head pointer to the next spot in the queue.
  * Preconditions: None
  * Postconditions: None
  */
@@ -144,7 +150,7 @@ bool inQueue(int pagenum) {
         if(queue[i] == pagenum) {
             return true;
         }
-        return false;
     }
+    return false;
 }
 

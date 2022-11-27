@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 /* -----------------------------------------------------------------------
  * Group: Nasley Chumacero-Martin, Zachariah Cleveland, and Keller Sedillo
  * CS 474 - Operating Systems
@@ -9,12 +11,13 @@
 #ifndef FUNCTIONS
 #define FUNCTIONS
 
-int pages[200];  // Global array to save page numbers from the memory file.
+int pages[250];  // Global array to save page numbers from the memory file.
+int page_refs;  // Global counter to count how many page references are added to pages array.
 
 // Function implemented in readfile.c
 void read_file();
 
-// Function implemented in fifo.c
+// Functions implemented in fifo.c
 void run_fifo();
 void enqueue(int page_num);
 void dequeue();
