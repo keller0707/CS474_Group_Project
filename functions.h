@@ -14,6 +14,14 @@
 int pages[250];  // Global array to save page numbers from the memory file.
 int page_refs;  // Global counter to count how many page references are added to pages array.
 
+// Page structure created to store both the page number and a dirty bit that will be set
+// to either 0 or 1. 1 = page has been modified, and 0 = page unmodified.
+
+typedef struct {
+    int page_num;
+    int dirty_bit;
+} Page;
+
 // Function implemented in readfile.c
 void read_file();
 

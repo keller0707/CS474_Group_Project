@@ -10,7 +10,7 @@
  * ----------------------------------------------------------------------------------- */
 #define NFRAMES 5
 
-int queue[NFRAMES]; // We create a queue to simulate a 10 page frame structure.
+Page queue[NFRAMES]; // We create a queue to simulate a 10 page frame structure.
 int head = -1, tail = -1;
 int pageFault = 0;     // This counter will keep track of how many page faults occur.
 int pg_index = 0;   // This variable will control the index of the page numbers array.
@@ -24,13 +24,13 @@ int pg_index = 0;   // This variable will control the index of the page numbers 
  * Postconditions:
  */
 void run_fifo() {
-    // Check that the entry in the pages array doesn't equal to zero.
-    printf("Page refs counter = %d\n", page_refs);
-    for (int i = 0; i < sizeof(pages); i++){
+    // Just for debugging. Delete before final.
+    for (int i = 0; i < page_refs; i++){
         printf("%d ", pages[i]);
     }
     printf("\n");
-    while (pages[pg_index] != 0) {
+    // While the size of the pages array is not at the end.
+    while (pg_index != page_refs) {
         // Check if the page is not in the page frame yet
         if (inQueue(pages[pg_index]) == false) {
             // This is a page fault so we increment the fault counter.
@@ -53,19 +53,19 @@ void run_fifo() {
  * Preconditions: The function must be called with the page number that is to be added.
  * Postcondtions: None.
  */
-void enqueue(int page_num) {
+void enqueue(int pg_num) {
     // First we check if the frames are full.
     if (isFull()) {
         dequeue(); // Call dequeue to first delete a page from the frame.
-        enqueue(page_num);  // Add the page to the newly open frame.
+        enqueue(pg_num);  // Add the page to the newly open frame.
     }
     else {
         if (head == -1) {
             head = 0;
         }
         tail = (tail + 1) % NFRAMES;
-        queue[tail] = page_num;
-        printf("Added to queue -> %d\n", queue[tail]);
+        queue[tail].page_num = pg_num;
+        printf("Added to queue -> %d\n", queue[tail].page_num);
     }
 }
 
@@ -83,7 +83,7 @@ void dequeue() {
         printf("Error! Queue is empty. Unable to delete items.\n");
     }
     else {
-        pg = queue[head];
+        pg = queue[head].page_num;
         if (head == tail) {
             head = -1;
             tail = -1;
@@ -132,7 +132,7 @@ void display() {
     }
     else {
         for (int i = 0; i < NFRAMES; i++) {
-            printf("%d\t", queue[i]);
+            printf("%d\t", queue[i].page_num);
         }
         printf("\n");
         printf("Head = %d, Tail = %d\n", head, tail);
@@ -147,7 +147,7 @@ void display() {
  */
 bool inQueue(int pagenum) {
     for (int i = 0; i < NFRAMES; i++) {
-        if(queue[i] == pagenum) {
+        if(queue[i].page_num == pagenum) {
             return true;
         }
     }
