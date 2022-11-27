@@ -33,5 +33,6 @@ int isFull();
 int isEmpty();
 void display();
 bool inQueue(int pagenum);
+int queueIndex(int pagenum);
 
 #endif

@@ -12,39 +12,42 @@
 
 Page queue[NFRAMES]; // We create a queue to simulate a 10 page frame structure.
 int head = -1, tail = -1;
+
 int pageFault = 0;     // This counter will keep track of how many page faults occur.
 int pg_index = 0;   // This variable will control the index of the page numbers array.
+int rw_counter = 0;  // The read/write counter.
 
 /*
- * This function uses the page numbers in the pages array to load up the queue that
- * represents the page frames.
- *
- * Preconditions: The function to read the memory file has to be called before calling
- *                this function, because the array pages[] has to be filled.
- * Postconditions:
+ * This function uses the page numbers from the pages array to load up the queue that
+ * represents the page frames. It calls the function inQueue() to check if the page is
+ * already loaded in the frame, and if it isn't, it calls enqueue() to load it. If the
+ * the page is already in the frame, then it sets to the dirty bit to "true".
+ * Preconditions: The function to read the memory file has to be called by main first, 
+ *                before calling this function, because the array pages[] has to exist.
+ * Postconditions: The function prints how many page faults occurred while loading the
+ *                 pages into the frames, and also how many read/writes to disk occurred.
  */
 void run_fifo() {
-    // Just for debugging. Delete before final.
-    for (int i = 0; i < page_refs; i++){
-        printf("%d ", pages[i]);
-    }
-    printf("\n");
-    // While the size of the pages array is not at the end.
+    // Loop runs while index hasn't reached the size of the pages array.
     while (pg_index != page_refs) {
-        // Check if the page is not in the page frame yet
+        // Checks if the page is not in the page frame (queue) yet.
         if (inQueue(pages[pg_index]) == false) {
-            // This is a page fault so we increment the fault counter.
-            pageFault++;
             // Enqueue the page and add it to a frame.
             enqueue(pages[pg_index]);
+            // Because it's not in the queue, it's a page fault so we increment the fault counter.
+            pageFault++;
         }
-        // else {
-        //     // Implement dirty bit here.
-        //     printf(" ");
-        // }
+        else {
+            // It's already in the queue and we need to find the page to get its index.
+            int q_idx = queueIndex(pages[pg_index]);
+            // Uses the index to set the dirty bit to 1 (true) because memory is accessing 
+            // the page again to modify it. 
+            queue[q_idx].dirty_bit = 1;
+        }
         pg_index++;
     }
-
+    printf("\nThe system had %d page faults during the process execution.\n", pageFault);
+    printf("There were %d read/write actions to disk during the process execution.\n", rw_counter);
 }
 
 /*
@@ -65,7 +68,11 @@ void enqueue(int pg_num) {
         }
         tail = (tail + 1) % NFRAMES;
         queue[tail].page_num = pg_num;
-        printf("Added to queue -> %d\n", queue[tail].page_num);
+        // If we are enqueueing a page into the page frame, then it has not been modified
+        // by the system and we need to set the dirty bit to 0, which is "false".
+        queue[tail].dirty_bit = 0;
+        // Uncomment for debugging.
+        //printf("Added to queue -> %d\n", queue[tail].page_num);
     }
 }
 
@@ -77,13 +84,17 @@ void enqueue(int pg_num) {
  * Postconditions: None
  */
 void dequeue() {
-    int pg;
-    // First check if the queue is empty.
+    //int pg; // Uncomment for debugging.
+    // First checks if the queue is empty.
     if (isEmpty()) {
         printf("Error! Queue is empty. Unable to delete items.\n");
     }
     else {
-        pg = queue[head].page_num;
+        // Checks if the page has the dirty bit set and was modified.
+        if (queue[head].dirty_bit == 1) {
+            rw_counter++;  // Increments the read/write counter.
+        }
+        //pg = queue[head].page_num;  // Uncomment for debugging.
         if (head == tail) {
             head = -1;
             tail = -1;
@@ -92,9 +103,9 @@ void dequeue() {
         else {
             head = (head + 1) % NFRAMES;
         }
-        printf("Removed -> %d\n", pg);
+        // Uncomment for debugging.
+        //printf("Removed -> %d\n", pg);
     }
-
 }
 
 /*
@@ -152,5 +163,20 @@ bool inQueue(int pagenum) {
         }
     }
     return false;
+}
+
+/*
+ * This function checks if a page number is already in the queue, and returns the
+ * index where it is found.
+ * Preconditions: The function needs as a parameter the page number to search.
+ * Postconditions: The function returns the index of where the page number is found.
+ */
+int queueIndex(int pagenum) {
+    for (int i = 0; i < NFRAMES; i++) {
+        if(queue[i].page_num == pagenum) {
+            return i;
+        }
+    }
+    return (-1);
 }
 
