@@ -1,9 +1,13 @@
-Fall 2022
-Project 3: Measuring the Performance of Page Replacement Algorithms
-README
+# H1 Fall 2022
+# H1 Project 3: Measuring the Performance of Page Replacement Algorithms
+# H1 README
+
 
 Project 3 is a group project for CS 474 - Operating Systems I. 
+
+
 Group members: Nasley Chumacero-Martin, Zachariah Cleveland, and Keller Sedillo
+
 
 To run the project:
 1. Unzip the folder "Project3-Chumacero-Martin_Nasley,Cleveland_Zachariah,Sedillo_Keller.zip".
