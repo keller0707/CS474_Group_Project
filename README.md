@@ -1,6 +1,6 @@
-# Fall 2022
-# Project 3: Measuring the Performance of Page Replacement Algorithms
-# README
+### Fall 2022
+### Project 3: Measuring the Performance of Page Replacement Algorithms
+### README
 
 
 Project 3 is a group project for CS 474 - Operating Systems I. 
