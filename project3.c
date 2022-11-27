@@ -9,10 +9,16 @@
  * ----------------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------------------------
- * The program 
- * 
- * Input: The program 
- * Output: The program
+ * The program simulates a the action of a virtual memory system with a single level page
+ * table and how it handles page requests with specific page replacement algorithms. It asks
+ * or user input to run the 5 page replacement algorithms. It runs FIFO, LRU, LFU
+ * MFU, and OPT. Each page replacement algorithm is run by the progam by calling a specific
+ * function. For example, to run FIFO, the program calls "run_fifo()". Each algorithm is run
+ * with a reference string from "memory_data.txt", which simulates the page requests from 
+ * a process.
+ * Input: The program asks for user input to run the selected algorithm.
+ * Output: The program runs each page replacement algorithm, prints selected output such as
+ *         the page faults that occur with each algorithm, and then exits.
  * -------------------------------------------------------------------------------------------- */
 
 int main() {

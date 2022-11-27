@@ -41,7 +41,7 @@ int queueIndex(int pagenum);
 // Functions implemented in lfu.c
 void run_lfu();
 void insertPage(int pg_num);
-void deletePage(int table_idx);
+void deletePage();
 bool table_isFull();
 bool table_isEmpty();
 bool has_slot();

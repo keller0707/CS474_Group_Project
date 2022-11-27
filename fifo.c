@@ -14,7 +14,8 @@ Page queue[NFRAMES]; // We create a queue to simulate a 10 page frame structure.
 int head = -1, tail = -1;
 
 /*
- * This function uses the page numbers from the pages array to load up the queue that
+ * This function simulates how a FIFO (first-in first-out) algorithm replaces pages in
+ * the page frame. It uses the page numbers from the pages array to load up the queue that
  * represents the page frames. It calls the function inQueue() to check if the page is
  * already loaded in the frame, and if it isn't, it calls enqueue() to load it. If the
  * the page is already in the frame, then it sets to the dirty bit to "true".

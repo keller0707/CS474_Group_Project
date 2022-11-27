@@ -14,18 +14,18 @@ Page table[NFRAME]; // We create a table to simulate a 10 page frame structure.
 int table_cnt = 0;  // Helps track if the table is empty or full.
 
 int page_frequencies[11]; // Array to store the frequencies of each page.
-int deleted_pgs[250]; // Array to store the pages that get deleted.
-int del_pgCount = 0;  // Counter to track the position of the deleted pages array.
 
 /*
- * This function 
- * 
- * 
- * 
- * Preconditions: The 
- *                b
- * Postconditions: The function 
- *                 the
+ * This function simulates how an LFU (least frequently used) algorithm replaces pages in
+ * the page frame. It loops through the pages array that contains the page numbers to be
+ * added to the page table, and it checks if the pages are not yet in the frame
+ * then calls the function to add them. It works with the other functions to mark a page
+ * for deletion if the table is full. A page gets deleted according to the lowest
+ * frequency that is tracked with the array page_frequencies.
+ * Preconditions: To run this function, project3.c main() has to call the function to
+ *                open and read the file containing the page numbers.
+ * Postconditions: Prints the number of page faults that occurred during program execution
+ *                 and the number of times a page was written to disk, then exits.
  */
 void run_lfu() {
     // Initializes all values in the table to -1 to indicate the table is empty.
@@ -37,7 +37,7 @@ void run_lfu() {
     while (pg_index != page_refs) {
         // Checks if the page is not in the page frame (table) yet.
         if (inTable(pages[pg_index]) == false) {
-            // Adds the page to the page table.
+            // Calls the function to add the page to the page table.
             insertPage(pages[pg_index]);
             // Because it's not in the table, it's a page fault so we increment the fault counter.
             pageFault++;
@@ -62,10 +62,6 @@ void run_lfu() {
     }
     printf("\nThe system had %d page faults during the process execution.\n", pageFault);
     printf("There were %d read/write actions to disk during the process execution.\n", rw_counter);
-
-    for (int i = 0; i < sizeof(page_frequencies); i++) {
-        printf("Page frequencies page%d = %d \t", i, page_frequencies[i]);
-    }
 }
 
 /*
@@ -76,38 +72,39 @@ void run_lfu() {
  */
 void insertPage(int pg_num) {
     int table_idx;
-    // First we check if the frames are full.
-    if (table_isFull()) {
-        // Get an index for the page that is the least frequently used.
-        table_idx = get_LFU();
-        deletePage(table_idx); // Calls deletePage to first delete a page from the frame.
-        insertPage(pg_num);  // Add the page to the newly open frame.
-    }
-    // Then we check if there is already an empty slot in the table.
-    else if (has_slot()) {
-        // Gets the index of the empty spot.
-        table_idx = empty_spot();
-        // Adds the page at the specified index.
-        table[table_idx].page_num = pg_num;
-        // Increases the table counter.
-        table_cnt++;
-        // If we are adding a page into the page frame, then it has not been modified
-        // by the system and we need to set the dirty bit to 0, which is "false".
-        table[table_idx].dirty_bit = 0;
+    // First we check if the page we are inserting into the table is already in
+    // the table, because then we don't need to add it.
+    if (inTable(pg_num)) {
+        // Gets the index of the page number in the table.
+        table_idx = table_index(pg_num);
+        // Since the page is already in the page frame, then it is getting called again
+        // to be modified by the system and we need to set the dirty bit to 1, which
+        // is "true".
+        table[table_idx].dirty_bit = 1;
     }
     else {
-        // There is no empty spot and we have to find the least frequently used page.
-        table_idx = get_LFU();
-        // Adds the page at the specified index.
-        table[table_idx].page_num = pg_num;
-        // Increases the table counter.
-        table_cnt++;
-        // If we are adding a page into the page frame, then it has not been modified
-        // by the system and we need to set the dirty bit to 0, which is "false".
-        table[table_idx].dirty_bit = 0;
+        // First we check if the frames are full.
+        if (table_isFull()) {
+            deletePage(); // Calls deletePage to first delete a page from the frame.
+            insertPage(pg_num);  // Calls the function again to insert page into a newly empty frame.
+        }
+        // Then we check if there is already an empty slot in the table.
+        else if (has_slot()) {
+            // Gets the index of the empty spot.
+            table_idx = empty_spot();
+            // Adds the page at the specified index.
+            table[table_idx].page_num = pg_num;
+            // Increases the table counter.
+            table_cnt++;
+            // If we are adding a page into the page frame, then it has not been modified
+            // before by the system and we need to set the dirty bit to 0, which is "false".
+            table[table_idx].dirty_bit = 0;
+        }
     }
     // Uncomment for debugging.
-    printf("Added to table -> %d\n", table[table_idx].page_num);
+    // printf("Added to table -> %d\n", table[table_idx].page_num);
+    // printf("The table = ");
+    // display_table();
 }
 
 /*
@@ -119,32 +116,34 @@ void insertPage(int pg_num) {
  * Preconditions: None
  * Postconditions: None
  */
-void deletePage(int table_idx) {
-    int pg;
+void deletePage() {
+    int lfu_pgnum, table_idx;
     // First checks if the table is empty.
     if (table_isEmpty()) {
         printf("Error! Table is empty. Unable to delete items.\n");
     }
+    // Needs to find a page to replace by calling get_LFU().
     else {
+        // Gets a page number for the page that is the least frequently used.
+        lfu_pgnum = get_LFU();
+        // Finds the index for where that page is currently located in the table.
+        table_idx = table_index(lfu_pgnum);
+        
         // Checks if the page has the dirty bit set and was modified.
         if (table[table_idx].dirty_bit == 1) {
             rw_counter++;  // Increments the read/write counter.
         }
-        pg = table[table_idx].page_num;
-        // Marks the table at that index as empty.
+        // Marks the page in the table at that index as empty.
         table[table_idx].page_num = -1;
         table_cnt--; // Decrease the table index counter.
 
         // Resets the frequency of the page number in the frequency array, because
-        // the page was deleted. It also adds the page to the "deleted array" so
-        // that the least frequency array can access recently deleted pages.
-        page_frequencies[pg] = 0;
-        deleted_pgs[del_pgCount] = pg;
-        del_pgCount++;
+        // the page was deleted.
+        page_frequencies[lfu_pgnum] = 0;
 
         // Uncomment for debugging.
-        printf("Removed -> %d\n", pg);
-        display_table();
+        // printf("Removed -> %d\n", table[table_idx].page_num);
+        // display_table();
     }
 }
 
@@ -207,9 +206,9 @@ int empty_spot() {
  * Preconditions: The function is called with the page number that needs to be searched.
  * Postconditions: The function returns true if the page is in the table, false otherwise.
  */
-bool inTable(int page_num) {
+bool inTable(int pg_num) {
     for (int i = 0; i < NFRAME; i++) {
-        if (table[i].page_num == page_num) {
+        if (table[i].page_num == pg_num) {
             return true;
         }
     }
@@ -234,28 +233,35 @@ int table_index(int page_num) {
  * This function sorts through the page_frequencies array and the current entries
  * in the page table to find the smallest frequency and its corresponding page number.
  * Preconditions: None
- * Postconditions: The function returns the index of the page that should be replaced
+ * Postconditions: The function returns the page number that should be replaced
  *                 because it has the smallest frequency.
  */
 int get_LFU() {
     // Goes through the numbers currently in the page table to find their frequencies
     // to store in a separate array.
-    int temp[11];
-    int index;
-    for (int i = 0; i < NFRAME; i++) {
-        index = table[i].page_num;
-        temp[index] = page_frequencies[index];
+    int pg_freq_temp[11];
+    // Prepopulates the temp array with large numbers so that the array does not contain 0.
+    for (int k = 0; k < 11; k++) {
+        pg_freq_temp[k] = 200;
     }
-    // Find the smallest number in the temp array.
-    int page_num = 1;
-    int smallest = temp[1];
+    int pg_num;
+    for (int i = 0; i < NFRAME; i++) {
+        // Gets the page number from the current table.
+        pg_num = table[i].page_num;
+        // Puts the page frequency from the frequencies array into the temp page frequency.
+        // We only need to consider frequencies from the current table.
+        pg_freq_temp[pg_num] = page_frequencies[pg_num];
+    }
+    // Finds the smallest number in the temp array.
+    int final_pg = 0;
+    int smallest = pg_freq_temp[0];
     for (int j = 1; j < 11; j++) {
-        if (smallest > temp[j]) {
-            smallest = temp[j];
-            page_num = j;  // This sets the page number to whatever page frequency is smaller.
+        if (smallest > pg_freq_temp[j] || smallest == pg_freq_temp[j]) {
+            smallest = pg_freq_temp[j];
+            final_pg = j;  // This sets the page number to whatever page frequency is smaller.
         }
     }
-    return page_num;
+    return final_pg;
 }
 
 /*
