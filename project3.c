@@ -16,6 +16,9 @@
  * -------------------------------------------------------------------------------------------- */
 
 int main() {
+   pageFault = 0;     // This counter will keep track of how many page faults occur.
+   pg_index = 0;   // This variable will control the index of the page numbers array.
+   rw_counter = 0;  // The read/write counter.
 
    // The program reads in the "memory trace" from a file. The memory file contains
    // a string of numbers which represent the memory address being read.
@@ -41,6 +44,7 @@ int main() {
          break;
       case 3:
          printf("You chose LFU.\n");
+         run_lfu();
          break;
       case 4:
          printf("You chose MFU.\n");

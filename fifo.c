@@ -13,10 +13,6 @@
 Page queue[NFRAMES]; // We create a queue to simulate a 10 page frame structure.
 int head = -1, tail = -1;
 
-int pageFault = 0;     // This counter will keep track of how many page faults occur.
-int pg_index = 0;   // This variable will control the index of the page numbers array.
-int rw_counter = 0;  // The read/write counter.
-
 /*
  * This function uses the page numbers from the pages array to load up the queue that
  * represents the page frames. It calls the function inQueue() to check if the page is
@@ -51,7 +47,7 @@ void run_fifo() {
 }
 
 /*
- * This function adds the page into the pages frame (queue). It checks of the queue 
+ * This function adds the page into the pages frame (queue). It checks if the queue 
  * is full and if it isn't then inserts the page at the end of the queue.
  * Preconditions: The function must be called with the page number that is to be added.
  * Postcondtions: None.
@@ -79,7 +75,9 @@ void enqueue(int pg_num) {
 /*
  * This function deletes a page from the pages frame (queue). First it checks if 
  * the queue is empty, and if it's empty it prints an error. Otherwise it advances 
- * the head pointer to the next spot in the queue.
+ * the head pointer to the next spot in the queue. The function also checks if the
+ * page that is about to be deleted has the dirty bit set, and if so, increases
+ * the read/write counter.
  * Preconditions: None
  * Postconditions: None
  */
@@ -179,4 +177,3 @@ int queueIndex(int pagenum) {
     }
     return (-1);
 }
-
