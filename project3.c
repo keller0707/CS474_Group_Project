@@ -41,6 +41,7 @@ int main() {
          break;
       case 2:
          printf("You chose LRU.\n");
+         run_lru();
          break;
       case 3:
          printf("You chose LFU.\n");

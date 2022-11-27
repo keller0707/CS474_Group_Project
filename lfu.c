@@ -11,7 +11,11 @@
 #define NFRAME 5
 
 Page table[NFRAME]; // We create a table to simulate a 10 page frame structure.
-int table_cnt = 0;
+int table_cnt = 0;  // Helps track if the table is empty or full.
+
+int page_frequencies[11]; // Array to store the frequencies of each page.
+int deleted_pgs[250]; // Array to store the pages that get deleted.
+int del_pgCount = 0;  // Counter to track the position of the deleted pages array.
 
 /*
  * This function 
@@ -37,6 +41,10 @@ void run_lfu() {
             insertPage(pages[pg_index]);
             // Because it's not in the table, it's a page fault so we increment the fault counter.
             pageFault++;
+            // Since a page was inserted into the table, the frequency of that page number has to
+            // be updated in the array that tracks how often each page appears. The page number
+            // itself is used as the array index, and what is stored in the array is the frequency.
+            page_frequencies[pages[pg_index]] += 1;  
         }
         else {
             // Page is already in the table and we need to find the page to get its index.
@@ -44,11 +52,20 @@ void run_lfu() {
             // Uses the index to set the dirty bit to 1 (true) because memory is accessing 
             // the page again to modify it. 
             table[table_idx].dirty_bit = 1;
+            // Since a page that is already in the table was accessed, the frequency of that page
+            // number needs to be updated in the array that tracks how often each page is requested.
+            // The page number itself is used as the array index, and what gets stored in the array
+            // is the frequency.
+            page_frequencies[pages[pg_index]] += 1; 
         }
         pg_index++;
     }
     printf("\nThe system had %d page faults during the process execution.\n", pageFault);
     printf("There were %d read/write actions to disk during the process execution.\n", rw_counter);
+
+    for (int i = 0; i < sizeof(page_frequencies); i++) {
+        printf("Page frequencies page%d = %d \t", i, page_frequencies[i]);
+    }
 }
 
 /*
@@ -103,7 +120,7 @@ void insertPage(int pg_num) {
  * Postconditions: None
  */
 void deletePage(int table_idx) {
-    int pg; // Uncomment for debugging.
+    int pg;
     // First checks if the table is empty.
     if (table_isEmpty()) {
         printf("Error! Table is empty. Unable to delete items.\n");
@@ -113,10 +130,17 @@ void deletePage(int table_idx) {
         if (table[table_idx].dirty_bit == 1) {
             rw_counter++;  // Increments the read/write counter.
         }
-        pg = table[table_idx].page_num;  // Uncomment for debugging.
+        pg = table[table_idx].page_num;
         // Marks the table at that index as empty.
         table[table_idx].page_num = -1;
         table_cnt--; // Decrease the table index counter.
+
+        // Resets the frequency of the page number in the frequency array, because
+        // the page was deleted. It also adds the page to the "deleted array" so
+        // that the least frequency array can access recently deleted pages.
+        page_frequencies[pg] = 0;
+        deleted_pgs[del_pgCount] = pg;
+        del_pgCount++;
 
         // Uncomment for debugging.
         printf("Removed -> %d\n", pg);
@@ -207,13 +231,31 @@ int table_index(int page_num) {
 }
 
 /*
- * This function
- * Preconditions:
- * Postconditions:
+ * This function sorts through the page_frequencies array and the current entries
+ * in the page table to find the smallest frequency and its corresponding page number.
+ * Preconditions: None
+ * Postconditions: The function returns the index of the page that should be replaced
+ *                 because it has the smallest frequency.
  */
 int get_LFU() {
-    /// To be developed.
-    return 2;
+    // Goes through the numbers currently in the page table to find their frequencies
+    // to store in a separate array.
+    int temp[11];
+    int index;
+    for (int i = 0; i < NFRAME; i++) {
+        index = table[i].page_num;
+        temp[index] = page_frequencies[index];
+    }
+    // Find the smallest number in the temp array.
+    int page_num = 1;
+    int smallest = temp[1];
+    for (int j = 1; j < 11; j++) {
+        if (smallest > temp[j]) {
+            smallest = temp[j];
+            page_num = j;  // This sets the page number to whatever page frequency is smaller.
+        }
+    }
+    return page_num;
 }
 
 /*

@@ -51,4 +51,12 @@ int table_index(int page_num);
 int get_LFU();
 void display_table();
 
+// Functions implemented in lru.c
+void run_lru();
+int inArray(int var);
+void addToArray(int new);
+void replace(int old, int new);
+int last_recently_used();
+void ArrayDisplay();
+
 #endif

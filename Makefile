@@ -15,8 +15,8 @@ all:	clean proj3
 
 # This program checks that the files exist before compiling. 
 # If the source files exist, then it compiles them.
-proj3:	project3.c readfile.c fifo.c lfu.c functions.h 
-	gcc -Wall project3.c readfile.c fifo.c lfu.c -o pageSimulator
+proj3:	project3.c readfile.c fifo.c lfu.c lru.c functions.h 
+	gcc -Wall project3.c readfile.c fifo.c lfu.c lru.c -o pageSimulator
 
 # The clean target deletes any prior objects from other compilations so that the program can 
 # be built cleanly every time the make command runs.
