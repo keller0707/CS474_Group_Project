@@ -45,9 +45,14 @@ void run_mfu(){
         pg_index++; 
     } // END while
     printf("\nThe system had %d page faults during the process execution.\n", pageFault);
-    printf("There were %d minor page faults during the process execution.\n", rw_counter);
+    printf("There were %d read/write actions to disk during the process execution.\n", rw_counter);
 } // END run_mfu
 
+/*
+ * Insert a page into the array
+ * Preconditions  : The array is not full
+ * Postconditions : A filled page with desired page number
+ */
 void insert(int pg_num){
     // Holds the index of the table.
     int table_idx;
@@ -84,13 +89,17 @@ void insert(int pg_num){
     // Set bit
     table[table_idx].dirty_bit = 0;
     
-    // Uncomment to debug.
-    // printf("Added to table -> %d\n", table[table_idx].page_num);
-    // printf("The table = ");
-    // mfu_display_table();
+    //printf("Added to table -> %d\n", table[table_idx].page_num);
+    //printf("The table = ");
+    //mfu_display_table();
 
 } // END insertPage
 
+/*
+ * Clear a spot in the array
+ * Preconditions  : The array exist 
+ * Postconditions : A openned page
+ */
 void delete(){
     int mfu_pgnum, table_idx;
     
@@ -119,58 +128,93 @@ void delete(){
     // Update Freq.
     page_frequencies[mfu_pgnum] = 0;
       // Uncomment for debugging.
-    // printf("Removed -> %d\n", table[table_idx].page_num);
-    // mfu_display_table();
+    //printf("Removed -> %d\n", table[table_idx].page_num);
+    //mfu_display_table();
 
 } // END delete
 
+/*
+ * Checks to see if table is empty
+ * Preconditions  : Table exists
+ * Postconditions : If its empty or not
+ */
 bool mfu_isEmpty() {
-    if (table_count == 0) {
-        return true;
-    }
-    return false;
-}
+    // Check if count is 0
+    if (table_count == 0) return true;
 
+    // Return false
+    return false;
+} // END mfu_isEmpty
+
+/*
+ * Checks if given page number is in the table
+ * Preconditions  : The array is not full
+ * Postconditions : if its in (true) or not (false)
+ */
 bool mfu_inTable(int pg_num) {
-    for (int i = 0; i < NFRAME; i++) {
-        if (table[i].page_num == pg_num) {
-            return true;
-        }
-    }
+    for (int i = 0; i < NFRAME; i++) {                // Loop through NFRAME
+        if (table[i].page_num == pg_num) return true; //  Check if element holds page number
+    }                                                 // END for
+    // Return false
     return false;
-}
+} // END mfu_inTable
 
+/*
+ * Finds table with given page number
+ * Preconditions  : The array is not full
+ * Postconditions : index of table
+ */
 int mfu_table_index(int page_num) {
-    for (int i = 0; i < NFRAME; i++) {
-        if (table[i].page_num == page_num) {
-            return i;
-        }
-    }
-    return (-2);
-}
+    for (int i = 0; i < NFRAME; i++) {               // Loop through NFRAME
+        if (table[i].page_num == page_num) return i; // Check if element holds page number
+    }                                                // END for
 
+    // Return -2 (not found)
+    return (-2);
+} // END mfu_table_index
+
+/*
+ * Finds an empty spot within the array
+ * Preconditions  : The array is not full
+ * Postconditions : index of a open spot
+ */
 int mfu_empty_spot() {
-    for (int i = 0; i < NFRAME; i++) {
-        if(table[i].page_num == -1) {
-            return i;
-        }
-    }
+    
+    for (int i = 0; i < NFRAME; i++) {        // Loop through NFRAME
+        if(table[i].page_num == -1) return i; // Check if empty page is found
+    }                                         // END for
+
+    // Return -2 (not found)
     return (-2);
-}
+} // END mfu_empty_spot
 
+/*
+ * Display the table within the NFRAME limit
+ * Precondition  : Table is not empty
+ * Postcondition : Print elements in the tables.
+ */
 void mfu_display_table() {
-    if (mfu_isEmpty()) {
-        printf("The table is empty.\n");
-    }
-    else {
-        for (int i = 0; i < NFRAME; i++) {
-            printf("Page Num: %d\t", table[i].page_num);
-            printf("Freq Num: %d\t", page_frequencies[i]);
-        }
-        printf("\n");
-    }
-}
+    
+    if (mfu_isEmpty()) {                 // Check if table empty 
+        printf("The table is empty.\n"); // Print error
+        return;                          // Exit funtion
+    }                                    // END if
+    
+    for (int i = 0; i < NFRAME; i++) {                 // Loop through Frame
+        printf("Page Num: %d\t", table[i].page_num);  // Print table page num
+        printf("Freq Num: %d\t", page_frequencies[i]); // Print freq. table
+    }                                                  // END for
 
+        // Print new lines
+        printf("\n");
+} // END mfu_display_table
+
+/*
+ * This function returns the page index of the 
+ * Most frequently used page.
+ * Precondition  : That the freq. table is not empty
+ * Postcondition : The index of the most freq. used
+ */
 int get_mfu(){
     // Set inital values
     int pg = 0;
@@ -178,12 +222,11 @@ int get_mfu(){
     
     // Loop through Freq. array
     for (int i = 0; i < 11; i++){
-    	// If found a higher number, update
-        if(most < page_frequencies[i]){
-            most = page_frequencies[i];
-            pg = i;
-        } // END if
-    } // END for
+        if(most < page_frequencies[i]){ // If found a higher number, update
+            most = page_frequencies[i]; // Update most
+            pg = i;                     // Update page
+        }                               // END if
+    }                                   // END for
     
     // Return index of page_freq.
     return pg;
