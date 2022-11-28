@@ -59,14 +59,23 @@ void replace(int old, int new);
 int last_recently_used();
 void ArrayDisplay();
 
-//Function implemented by mfu.c
+//Functions implemented in mfu.c
 void run_mfu();
 void insert(int pg_num);
 void delete();
-int get_mfu();
 bool mfu_isEmpty();
-void mfu_display_table();
-int mfu_empty_spot();
 bool mfu_inTable(int pg_num);
 int mfu_table_index(int page_num);
+int mfu_empty_spot();
+void mfu_display_table();
+int get_mfu();
+
+//Functions implemented in opt.c
+void run_opt();
+void opt_addToArray(int new);
+void opt_replace(int old, int new);
+int last_to_be_used();
+void opt_ArrayDisplay();
+int opt_inArray(int var);
+
 #endif

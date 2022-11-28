@@ -45,7 +45,7 @@ void run_mfu(){
         pg_index++; 
     } // END while
     printf("\nThe system had %d page faults during the process execution.\n", pageFault);
-    printf("There were %d read/write actions to disk during the process execution.\n", rw_counter);
+    printf("There were %d minor page faults during the process execution.\n", rw_counter);
 } // END run_mfu
 
 void insert(int pg_num){
@@ -84,9 +84,10 @@ void insert(int pg_num){
     // Set bit
     table[table_idx].dirty_bit = 0;
     
-    printf("Added to table -> %d\n", table[table_idx].page_num);
-    printf("The table = ");
-    mfu_display_table();
+    // Uncomment to debug.
+    // printf("Added to table -> %d\n", table[table_idx].page_num);
+    // printf("The table = ");
+    // mfu_display_table();
 
 } // END insertPage
 
@@ -118,8 +119,8 @@ void delete(){
     // Update Freq.
     page_frequencies[mfu_pgnum] = 0;
       // Uncomment for debugging.
-    printf("Removed -> %d\n", table[table_idx].page_num);
-    mfu_display_table();
+    // printf("Removed -> %d\n", table[table_idx].page_num);
+    // mfu_display_table();
 
 } // END delete
 

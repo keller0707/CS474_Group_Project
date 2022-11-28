@@ -61,7 +61,7 @@ void run_lfu() {
         pg_index++;
     }
     printf("\nThe system had %d page faults during the process execution.\n", pageFault);
-    printf("There were %d read/write actions to disk during the process execution.\n", rw_counter);
+    printf("There were %d minor page faults during the process execution.\n", rw_counter);
 }
 
 /*

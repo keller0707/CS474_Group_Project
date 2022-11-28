@@ -28,7 +28,7 @@ int main() {
 
    // The program reads in the "memory trace" from a file. The memory file contains
    // a string of numbers which represent the memory address being read.
-  read_file();
+   read_file();
 
    int choice;
    // Asks the user for input to run a page-replacement algorithm.
@@ -59,6 +59,7 @@ int main() {
          break;
       case 5:
          printf("You chose OPT.\n");
+         run_opt();
          break;
    }
 
