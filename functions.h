@@ -65,4 +65,8 @@ void insert(int pg_num);
 void delete();
 int get_mfu();
 bool mfu_isEmpty();
+void mfu_display_table();
+int mfu_empty_spot();
+bool mfu_inTable(int pg_num);
+int mfu_table_index(int page_num);
 #endif
