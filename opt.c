@@ -24,11 +24,11 @@ int opt_index = 0;   // This variable will control the index of the page numbers
  */
 void run_opt() {
     // Uncomment for debugging:
-    printf("page numbers:\n");
-    for (int i = 0; i < page_refs; i++) {
-    	printf("%d, ", pages[i]);
-    }
-    printf("\n");
+    //printf("page numbers:\n");
+    //for (int i = 0; i < page_refs; i++) {
+    //	printf("%d, ", pages[i]);
+    //}
+    //printf("\n");
     
     // Loop runs while index hasn't reached the size of the pages array.
     while (opt_index != page_refs) {
@@ -50,8 +50,8 @@ void run_opt() {
         }
         
         // Uncomment for debugging:
-        printf("Array:\t");
-        opt_ArrayDisplay();
+        //printf("Array:\t");
+        //opt_ArrayDisplay();
         
         //increase page index.
         opt_index++;
@@ -134,6 +134,11 @@ void opt_ArrayDisplay() {
 }
 
 
+/* opt_inArray()
+ * This function returns true or false depending on whether the given variable is in the array queue.
+ * Preconditions: depends on NFRAMES and the opt_array.
+ * Postconditions: It prints the array to the console.
+ */
 int opt_inArray(int var) {
 	for (int i=0; i < NFRAMES; i++) {
 		if (var == opt_array[i]) return 1;
