@@ -55,6 +55,7 @@ int main() {
          break;
       case 4:
          printf("You chose MFU.\n");
+         run_mfu();
          break;
       case 5:
          printf("You chose OPT.\n");

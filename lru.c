@@ -25,11 +25,11 @@ int lpg_index = 0;   // This variable will control the index of the page numbers
  */
 void run_lru() {
     // Uncomment for debugging:
-    printf("page numbers:\n");
-    for (int i = 0; i < page_refs; i++) {
-    	printf("%d, ", pages[i]);
-    }
-    printf("\n");
+    //printf("page numbers:\n");
+    //for (int i = 0; i < page_refs; i++) {
+    //	printf("%d, ", pages[i]);
+    //}
+    //printf("\n");
     
     // Loop runs while index hasn't reached the size of the pages array.
     while (lpg_index != page_refs) {
@@ -51,8 +51,8 @@ void run_lru() {
         }
         
         // Uncomment for debugging:
-        printf("Array:");
-        ArrayDisplay();
+        //printf("Array:");
+        //ArrayDisplay();
         
         //increase page index.
         lpg_index++;

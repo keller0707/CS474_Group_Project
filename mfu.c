@@ -14,7 +14,7 @@ extern int page_refs;
 
 
 Page table[NFRAME]; // We create a table to simulate a 10 page frame structure.
-int table_cnt = 0;  // Helps track if the table is empty or full.
+int table_count = 0;  // Helps track if the table is empty or full.
 
 int page_frequencies[11]; // Array to store the frequencies of each page.
 
@@ -29,7 +29,7 @@ void run_mfu(){
 
     while (pg_index != page_refs){
         if(inTable(pages[pg_index]) == false){
-            mfu_insert(pages[pg_index]);
+            insert(pages[pg_index]);
             pageFault++;
         } else {
             table_idx = table_index(pages[pg_index]);
@@ -43,7 +43,7 @@ void run_mfu(){
     } // END while
 } // END run_mfu
 
-void mfu_insert(int pg_num){
+void insert(int pg_num){
     // Holds the index of the table.
     int table_idx;
 
@@ -53,37 +53,44 @@ void mfu_insert(int pg_num){
         return;
     } // End if
 
-    if(table_cnt == NFRAME){
-        mfu_delete();
-        mfu_insert(pg_num);
+    if(table_count == NFRAME){
+        delete();
+        insert(pg_num);
         return;
     } // END ifFull
 
     table_idx = empty_spot();
     table[table_idx].page_num = pg_num;
-    table_cnt++;
+    table_count++;
     table[table_idx].dirty_bit = 0;
 
-} // END mfu_insert
+} // END insertPage
 
-void mfu_delete(){
+void delete(){
     int mfu_pgnum, table_idx;
-    if (table_isEmpty()){
+    if (mfu_isEmpty()){
         printf("ERROR: Table is empty");
         return;
     } // END if
     
-    mfu_pgnum = mfu_get_mfu();
+    mfu_pgnum = get_mfu();
     table_idx = table_index(mfu_pgnum);
     if (table[table_idx].dirty_bit == 1) rw_counter++;
 
     table[table_idx].page_num = -1;
-    table_cnt --;
+    table_count--;
     page_frequencies[mfu_pgnum] = 0;
 
 } // END delete
 
-int mfu_get_mfu(){
+bool mfu_isEmpty() {
+    if (table_count == 0) {
+        return true;
+    }
+    return false;
+}
+
+int get_mfu(){
     int pg = 0;
     int most = page_frequencies[0];
     for (int i = 0; i < sizeof(page_frequencies); i++){
@@ -93,4 +100,4 @@ int mfu_get_mfu(){
         } // END if
     } // END for
     return pg;
-} //  END mfu_get_mfu
+} //  END get_mfu

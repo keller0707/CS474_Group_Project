@@ -51,14 +51,6 @@ int table_index(int page_num);
 int get_LFU();
 void display_table();
 
-//Functions implemented in opt.c
-void run_opt();
-void opt_addToArray(int new);
-int last_to_be_used();
-void opt_ArrayDisplay();
-int opt_inArray(int var);
-void opt_replace(int old, int new);
-
 // Functions implemented in lru.c
 void run_lru();
 int inArray(int var);
@@ -67,14 +59,10 @@ void replace(int old, int new);
 int last_recently_used();
 void ArrayDisplay();
 
-//Functions implemented in mfu.c
-void run_mfu();
-void mfu_insert(int pg_num);
-void mfu_delete();
-int mfu_get_mfu()
-
-//
+//Function implemented by mfu.c
 void run_mfu();
 void insert(int pg_num);
 void delete();
+int get_mfu();
+bool mfu_isEmpty();
 #endif
